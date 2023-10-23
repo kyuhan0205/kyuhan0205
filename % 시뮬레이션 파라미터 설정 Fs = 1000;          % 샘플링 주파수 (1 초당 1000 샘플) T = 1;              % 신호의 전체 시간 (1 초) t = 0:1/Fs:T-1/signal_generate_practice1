@@ -1,0 +1,138 @@
+% 시뮬레이션 파라미터 설정
+Fs = 1000;          % 샘플링 주파수 (1 초당 1000 샘플)
+T = 1;              % 신호의 전체 시간 (1 초)
+t = 0:1/Fs:T-1/Fs;  % 시간 벡터
+
+% 주파수가 3 Hz인 사인 파형 생성
+f = 120;  % 주파수 (3 Hz)
+signal = sin(2*pi*f*t);
+
+% 시간 도메인에서의 신호 그래프 그리기 (원래 신호)
+figure;
+subplot(4, 2, 1);
+plot(t, signal);
+xlabel('시간 (초)');
+ylabel('신호의 크기');
+title('원래 신호');
+
+% 다양한 SNR 레벨에서 노이즈 추가 및 그래프 생성
+snr_levels = [-20, -15, -10, -5, 0, 5, 10];
+for i = 1:length(snr_levels)
+    snr = snr_levels(i);
+    
+    % AWGN 노이즈 생성
+    noise = awgn(signal, snr, 'measured');
+    
+    % 시간 도메인에서의 신호와 노이즈 추가된 신호 그래프 그리기
+    subplot(4, 2, i + 1);
+    plot(t, noise);
+    xlabel('시간 (초)');
+    ylabel('신호의 크기');
+    title(['SNR = ' num2str(snr) ' dB']);
+   
+end
+
+
+%%%%STFT
+%%%%STFT
+&&&$STFT-BPSK signal generate
+% 시뮬레이션 파라미터 설정
+Fs = 1000;          % 샘플링 주파수 (1 초당 1000 샘플)
+T = 1;              % 신호의 전체 시간 (1 초)
+t = 0:1/Fs:T-1/Fs;  % 시간 벡터
+
+% 주파수가 3 Hz인 사인 파형 생성
+f = 120;  % 주파수 (3 Hz)
+signal = sin(2*pi*f*t);
+
+% 시간 도메인에서의 신호 그래프 그리기 (원래 신호)
+figure;
+subplot(4, 2, 1);
+plot(t, signal);
+xlabel('시간 (초)');
+ylabel('신호의 크기');
+title('원래 신호');
+
+% 다양한 SNR 레벨에서 노이즈 추가 및 그래프 생성
+snr_levels = [-20, -15,-10, -5, 0, 5, 10];
+for i = 1:length(snr_levels)
+    snr = snr_levels(i);
+    
+    % AWGN 노이즈 생성
+    noise = awgn(signal, snr, 'measured');
+    
+    % 시간 도메인에서의 신호와 노이즈 추가된 신호 그래프 그리기
+    subplot(4, 2, i + 1);
+    plot(t, noise);
+    xlabel('시간 (초)');
+    ylabel('신호의 크기');
+    title(['SNR = ' num2str(snr) ' dB']);
+    
+    % STFT 파라미터 설정
+    window_length = 64;  % 윈도우 길이
+    overlap = 50;         % 겹치는 포인트 수
+    nfft = 512;           % FFT 포인트 수
+
+    % STFT 계산
+    subplot(4, 2, i + 1);  % STFT 결과를 현재의 서브플롯에 그립니다.
+    spectrogram(noise, hamming(window_length), overlap, nfft, Fs, 'yaxis');
+    title(['STFT 분석 결과 (SNR = ' num2str(snr) ' dB)']);
+end
+
+% 주파수 120 Hz의 원본 신호 생성
+fs = 1000; % 샘플링 주파수 (Hz)
+t = 0:1/fs:1; % 1초 동안의 시간 벡터 생성
+f0 = 120; % 원하는 주파수 (Hz)
+original_signal = sin(2*pi*f0*t);
+
+% AWGN 노이즈 추가
+snr_values = [-20, -10, 0, 10, 20]; % 다양한 SNR 값
+noisy_signals = cell(length(snr_values), 1);
+
+for i = 1:length(snr_values)
+    snr_db = snr_values(i); % 현재 SNR 값
+    noisy_signals{i} = awgn(original_signal, snr_db, 'measured');
+end
+
+% 원본 신호와 노이즈 추가된 신호 플롯
+figure;
+subplot(length(snr_values) + 1, 1, 1);
+plot(t, original_signal);
+title('Original Signal (120 Hz)');
+xlabel('Time (s)');
+ylabel('Amplitude');
+
+for i = 1:length(snr_values)
+    subplot(length(snr_values) + 1, 1, i + 1);
+    plot(t, noisy_signals{i});
+    title(['Noisy Signal (SNR ' num2str(snr_values(i)) ' dB)']);
+    xlabel('Time (s)');
+    ylabel('Amplitude');
+end
+
+
+%%%%STFT
+%%%%STFT
+%%%%STFT ofdm
+% STFT 수행 및 결과 플롯
+window_length = 128; % STFT 윈도우 길이
+overlap = 100; % 겹치는 포인트 수
+nfft = 256; % FFT 포인트 수
+stft_results = cell(length(snr_values), 1);
+
+for i = 1:length(snr_values)
+    stft_results{i} = spectrogram(noisy_signals{i}, hamming(window_length), overlap, nfft, fs);
+end
+
+% STFT 결과 플롯
+figure;
+for i = 1:length(snr_values)
+    subplot(length(snr_values), 1, i);
+    imagesc(t, f, 10*log10(abs(stft_results{i})));
+    axis xy;
+    colormap('jet');
+    title(['STFT of Noisy Signal (SNR ' num2str(snr_values(i)) ' dB)']);
+    xlabel('Time (s)');
+    ylabel('Frequency (Hz)');
+    colorbar;
+end
